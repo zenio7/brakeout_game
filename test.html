@@ -16,13 +16,9 @@
     var canvas = document.getElementById("testCV");
     var cv = canvas.getContext("2d");
     var x = canvas.width-400;
-    var y = canvas.height-20;
-    var dx = 3;
-    var dy = -3;
-
-    var dBallSpeedX = 0; //ball x축 속도변량
-    var dPaddleX = 5; //paddle 속도변량
-
+    var y = canvas.height-30;
+    var dx = 2;
+    var dy = -2;
     var ballRadius = 10;
     var ballColor="0xffffff"; //공 색상 초기값 검정
     var paddleHeight = 10;
@@ -30,13 +26,12 @@
     var paddleX = (canvas.width-paddleWidth)/2; //bar의 x위치
     var rightPressed = false; //오른쪽 왼쪽 눌렸는지 확인하는 변수
     var leftPressed = false;
-    var spacePress = false;
 
     var brickRowCount = 3; //벽돌 행(세로) 개수
     var brickColumnCount = 5; //벽돌 열(가로) 개수
     var brickWidth = 75;
     var brickHeight = 20;
-    var brickPadding = 15; //기본값 10 너무 간격이 촘촘함
+    var brickPadding = 10;
     var brickOffsetTop = 30;
     var brickOffsetLeft = 30;
 
@@ -72,9 +67,6 @@
         else if(e.keyCode == 37){
             leftPressed = false;
         }
-        if(e.keyCode==32){
-            spacePress = true;
-        }
     }
 
     function collisionDetection(){
@@ -82,18 +74,15 @@
             for(var r = 0; r<brickRowCount; r++){
                 var b = bricks[c][r];
                 if(b.status>=1){
-                    if(x > b.x-ballRadius && x < b.x+brickWidth+ballRadius && y > b.y-ballRadius && y < b.y+brickHeight+ballRadius) {
+                    if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
                         dy = -dy;
-                        //ballColor = randCol();
+                        ballColor = randCol();
                         b.status--;
                         score++;
                         if(score == brickColumnCount*brickRowCount*1){
-                            alert("!!Congratulation!!");
-                            alert("Go Next Level");
-                            location.href="breakout_game_lv2.html";
-                            // 페이지 새로고침
-                            // document.location.reload();
-                            // clearInterval(interval);
+                            alert("!!축하합니다!!");
+                            document.location.reload();
+                            clearInterval(interval);
                         }
                     }
                 }
@@ -103,15 +92,8 @@
 
     function drawScore() {
         cv.font = "16px Arial";
-        cv.fillStyle = "#8904B1";
-        cv.fillText("Score: "+score+"/"+(brickColumnCount*brickRowCount), 100, 20);
-    }
-    
-    function drawStage() {
-        cv.font = "16px Arial";
-        cv.fillStyle = "#8904B1";
-        cv.fillText("Stage 1", 25, 20);
-        cv.fillText("Made by Leslie",360,20);
+        cv.fillStyle = "#0095DD";
+        cv.fillText("Score: "+score, 8, 20);
     }
 
     function randCol(){
@@ -163,70 +145,41 @@
         drawPaddle();
         collisionDetection();
         drawScore();
-        drawStage();
         //ball collapse logic
         //vertical collapse
         if(x+dx<ballRadius||x+dx>canvas.width-ballRadius){
             dx=-dx;
-            
+            ballColor = randCol();
         }
         //horizon collapse
         if(y+dy<ballRadius){
             dy=-dy;
-            
+            ballColor = randCol();
         }
-        //paddle collapse
-        else if(y+dy>canvas.height-ballRadius-8){
-
-            if(x>paddleX-2&&x<paddleX+paddleWidth+2){ //패들충돌 판정 여유값 = 2
-                ballColor = randCol();
-                //추후 레벨 증가시 패들충돌 후 속도 증가를 위해 dx값의 부호 판별 부분을 따로 분리
-                if(dx>0){
-                    dx+=dBallSpeedX;
-                    //왼쪽으로 이동중일때 충돌시 공이 왼쪽으로 이동하게
-                    if(leftPressed){
-                        dx=-(Math.abs(dx));
-                    }
-                    else if(rightPressed){
-                        dx=(Math.abs(dx));
-                    }
-                }
-                else{
-                    dx-=dBallSpeedX;
-                    if(leftPressed){
-                        dx=-(Math.abs(dx));
-                    }
-                    else if(rightPressed){
-                        dx=(Math.abs(dx));
-                    }
-                }
+        else if(y+dy>canvas.height-ballRadius){
+            if(x>paddleX&&x<paddleX+paddleWidth){
                 dy=-dy;
+                //dx*=1.1; //충돌시 속도 빨라지도록 ex)2배
             }
-        }
-        // out of range
-        if(y+dy>canvas.height+ballRadius){
-            alert("GAME OVER");
-            location.href="breakout_game_lv1.html";
+        //     else{
+        //         alert("GAME OVER");
+        //         document.location.reload();
+        //     }
         }
         //bar movement logic
         if(rightPressed&&paddleX<canvas.width-paddleWidth){
-            paddleX+=dPaddleX;
+            paddleX+=5;
         }
         if(leftPressed&&paddleX>0){
-            paddleX-=dPaddleX;
+            paddleX-=5;
         }
         //ball movement
-        if(!spacePress){
-            x=paddleX+(paddleWidth/2);
-        }
-        else{
-            x+=dx;
-            y+=dy;
-        }
-        requestAnimationFrame(draw);
+        x+=dx;
+        y+=dy;
+        
     }
     
-    draw();
+    setInterval(draw,10);//draw함수를 30ms마다 호출
     
 </script>
 </body>
