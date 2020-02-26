@@ -205,8 +205,9 @@
         }
         // out of range
         if(y+dy>canvas.height+ballRadius){
-            alert("GAME OVER");
-            location.href="breakout_game_lv1.html";
+			alert("Game Over");
+			y=canvas.height/2;
+            location.replace("breakout_game_lv1.html");
         }
         //bar movement logic
         if(rightPressed&&paddleX<canvas.width-paddleWidth){
